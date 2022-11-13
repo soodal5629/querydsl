@@ -13,7 +13,7 @@ import javax.persistence.PersistenceContext;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Transactional
+@Transactional // Test 에서는 롤백해버림
 class QuerydslApplicationTests {
 
 	@PersistenceContext
