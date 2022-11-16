@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static study.querydsl.entity.QMember.member; // static import
 
 @SpringBootTest
 @Transactional
@@ -52,10 +53,10 @@ public class QuerydslBasicTest {
 
     @Test
     public void startQuerydsl() {
-        QMember m = new QMember("m"); // 어떤 QMember인지 구분하는 m이라는 이름을 주는 것임
-        Member findMember = queryFactory.select(m)
-                .from(m)
-                .where(m.username.eq("member1")) // 파라미터 바인딩 처리
+        // QMember m = new QMember("m"); // 어떤 QMember인지 구분하는 m이라는 이름을 주는 것임
+        Member findMember = queryFactory.select(member) // QType은 static import 하여 사용하는 것을 권장함
+                .from(member)
+                .where(member.username.eq("member1")) // 파라미터 바인딩 처리
                 .fetchOne();
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
