@@ -54,11 +54,30 @@ public class QuerydslBasicTest {
     @Test
     public void startQuerydsl() {
         // QMember m = new QMember("m"); // 어떤 QMember인지 구분하는 m이라는 이름을 주는 것임
-        Member findMember = queryFactory.select(member) // QType은 static import 하여 사용하는 것을 권장함
+        Member findMember = queryFactory.select(member) // Q-Type은 static import 하여 사용하는 것을 권장함
                 .from(member)
                 .where(member.username.eq("member1")) // 파라미터 바인딩 처리
                 .fetchOne();
         assertThat(findMember.getUsername()).isEqualTo("member1");
     }
 
+    @Test
+    public void search() {
+        Member findMember = queryFactory.selectFrom(member)
+                .where(member.username.eq("member1")
+                        .and(member.age.eq(10)))
+                .fetchOne();
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
+
+    @Test
+    public void searchAndParam() {
+        Member findMember = queryFactory.selectFrom(member)
+                .where(
+                        member.username.eq("member1"), // and 없이도 이렇게 사용 가능
+                        member.age.eq(10) // 이 경우 and 로 조회됨
+                )
+                .fetchOne();
+        assertThat(findMember.getUsername()).isEqualTo("member1");
+    }
 }
