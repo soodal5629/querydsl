@@ -217,12 +217,50 @@ public class QuerydslBasicTest {
         em.persist(new Member("teamB"));
 
         List<Member> result = queryFactory.select(member)
-                .from(member, team)
+                .from(member, team) // 세타 조인은 left join 안됨
                 .where(member.username.eq(team.name))
                 .fetch(); // 모든 회원과 모든 팀을 다 가져와서 조인해버린 후, where 절에서 필터링
+        // cross join 실행됨(교차조인 - 카티션 프로덕트 )
 
         assertThat(result)
                 .extracting("username")
                 .containsExactly("teamA", "teamB");
+    }
+
+    /**
+     * 예) 회원과 팀을 조회하면서, 팀 이름이 teamA인 팀만 조인, 회원은 모두 조회
+     * JPQL: select m, t from Member m left join m.team t on t.name = 'teamA'
+     */
+    @Test
+    public void join_on_filtering() {
+        List<Tuple> result = queryFactory
+                .select(member, team)
+                .from(member)
+                .leftJoin(member.team, team)
+                .on(team.name.eq("teamA")) // inner join은 where절 쓰면 되므로 left join 할 때만 의미 있음
+                .fetch();
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
+    }
+
+    /*
+     * 연관관계가 없는 엔티티 외부 조인
+     * 회원이 이름이 팀 이름과 같은 대상 외부 조인
+     */
+    @Test
+    public void join_on_no_relation() {
+        em.persist(new Member("teamA"));
+        em.persist(new Member("teamB"));
+        em.persist(new Member("teamC"));
+
+        List<Tuple> result = queryFactory.select(member, team)
+                .from(member)
+                .leftJoin(team) // 기존에는 leftJoin(member.team, team) => 이렇게 해야 id로 매칭해서 join 함
+                .on(member.username.eq(team.name)) // 필터링
+                .fetch();
+        for (Tuple tuple : result) {
+            System.out.println("tuple = " + tuple);
+        }
     }
 }
