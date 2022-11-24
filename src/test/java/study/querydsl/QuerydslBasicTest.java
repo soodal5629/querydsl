@@ -429,4 +429,33 @@ public class QuerydslBasicTest {
             System.out.println("s = " + s);
         }
     }
+
+    @Test
+    public void simpleProjection() {
+        List<Member> result = queryFactory.select(member)
+                .from(member)
+                .fetch(); // 이것도 프로젝션 대상이 하나임(Member)
+        for (Member member1 : result) {
+            System.out.println("member1 = " + member1);
+        }
+    }
+
+    /**
+     * Tuple 예제
+     * 튜플은 querydsl에 종속적이기 때문에 리파지토리 계층에서만 쓰는 것을 권장
+     * 추후 하부 기술을 바꾸더라도 서비스, 컨트롤러 계층에 영향 가지 않도록!
+     * 따라서 리파지토리에서 서비스, 컨트롤러에 반환할 때는 DTO 사용하길 권장
+     */
+    @Test
+    public void tupleProjection() {
+        List<Tuple> result = queryFactory.select(member.username, member.age)
+                .from(member)
+                .fetch();
+        for (Tuple tuple : result) {
+            String username = tuple.get(member.username);
+            Integer age = tuple.get(member.age);
+            System.out.println("username = " + username);
+            System.out.println("age = " + age);
+        }
+    }
 }
