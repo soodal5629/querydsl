@@ -616,4 +616,40 @@ public class QuerydslBasicTest {
     private BooleanExpression allEq(String usernameCond, Integer ageCond) {
         return usernameEq(usernameCond).and(ageEq(ageCond));
     }
+
+    /*
+     * 벌크 연산 예제
+     */
+    @Test
+    public void bulkUpdate() {
+        // member1, member2 는 28살미만이므로 이름 변경됨
+        long count = queryFactory.update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(28))
+                .execute();
+        // ★★★ 벌크연산을 하면 영속성 컨텍스트를 무시하고 바로 db에 쿼리가 날아가기 때문에
+        // ★★★ 영속성 컨텍스트와 db 데이터가 서로 상이할 수 있으므로 영속성 컨텍스트 clear 해 줘야 함
+        em.flush();
+        em.clear();
+    }
+
+    /**
+     * 모든 회원의 나이를 +1하는 벌크 연산 (-1 넣으면 1살씩 감소)
+     */
+    @Test
+    public void bulkAdd() {
+        long count = queryFactory.update(member)
+                .set(member.age, member.age.add(1))
+                .execute();
+    }
+
+    /**
+     * 삭제 벌크 연산
+     */
+    @Test
+    public void bulkDelete() {
+        long count = queryFactory.delete(member)
+                .where(member.age.gt(10))
+                .execute();
+    }
 }
