@@ -652,4 +652,31 @@ public class QuerydslBasicTest {
                 .where(member.age.gt(10))
                 .execute();
     }
+
+    /**
+     * sql 함수 사용법 예제
+     */
+    @Test
+    public void sqlFunction() {
+        List<String> result = queryFactory.select(Expressions.stringTemplate(
+                        "function('replace', {0}, {1}, {2})",
+                        member.username, "member", "M"))
+                .from(member)
+                .fetch();
+        for (String s : result) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    @Test
+    public void sqlFunction2() {
+        List<String> result = queryFactory.select(member.username)
+                .from(member)
+                //.where(member.username.eq(Expressions.stringTemplate("function('lower', {0})",
+                //        member.username)))
+                // 모든 db에서 제공하는 안시 표준 쿼리에서 제공하는 대표적인 함수들은
+                // 기본적으로 내장하고 있기 떄문에 다음과 같이 사용 가능 ex) upper 등등..
+               .where(member.username.eq(member.username.lower()))
+                .fetch();
+    }
 }
